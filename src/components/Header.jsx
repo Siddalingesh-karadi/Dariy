@@ -1,0 +1,80 @@
+import React from 'react';
+import { ShoppingBag, Settings, Store, Calculator, RefreshCw } from 'lucide-react';
+
+export default function Header({ 
+  activeTab, 
+  setActiveTab, 
+  productCount, 
+  cartCount,
+  shopInfo,
+  onResetDefaults 
+}) {
+  return (
+    <header className="bg-slate-900 text-white shadow-lg sticky top-0 z-30 border-b border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20">
+          
+          {/* Brand & Shop Context */}
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-md">
+              <Store className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white">
+                  {shopInfo.shopName}
+                </h1>
+                <span className="bg-blue-900/80 text-blue-300 text-xs px-2 py-0.5 rounded-full font-medium border border-blue-700/50">
+                  Shop Counter
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 font-medium hidden sm:block">
+                {shopInfo.subHeader}
+              </p>
+            </div>
+          </div>
+
+          {/* Navigation Controls */}
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            
+            {/* Mode Switcher */}
+            <div className="bg-slate-800 p-1 rounded-xl flex items-center border border-slate-700">
+              <button
+                onClick={() => setActiveTab('calculator')}
+                className={`flex items-center space-x-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+                  activeTab === 'calculator'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                }`}
+              >
+                <Calculator className="w-4 h-4" />
+                <span>Calculator</span>
+                {cartCount > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 text-xs bg-emerald-500 text-slate-950 font-bold rounded-full animate-pulse-subtle">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('manage')}
+                className={`flex items-center space-x-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+                  activeTab === 'manage'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+                <span>Manage Products</span>
+                <span className="text-xs px-1.5 py-0.5 bg-slate-700 text-slate-300 rounded-full">
+                  {productCount}
+                </span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
