@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, Settings, Store, Calculator, RefreshCw } from 'lucide-react';
+import { ShoppingBag, Settings, Store, Calculator } from 'lucide-react';
 
 export default function Header({ 
   activeTab, 
@@ -7,7 +7,7 @@ export default function Header({
   productCount, 
   cartCount,
   shopInfo,
-  onResetDefaults 
+  onOpenCalculator
 }) {
   return (
     <header className="bg-slate-900 text-white shadow-lg sticky top-0 z-30 border-b border-slate-800">
@@ -24,7 +24,7 @@ export default function Header({
                 <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white">
                   {shopInfo.shopName}
                 </h1>
-                <span className="bg-blue-900/80 text-blue-300 text-xs px-2 py-0.5 rounded-full font-medium border border-blue-700/50">
+                <span className="bg-blue-900/80 text-blue-300 text-xs px-2 py-0.5 rounded-full font-medium border border-blue-700/50 hidden xs:inline">
                   Shop Counter
                 </span>
               </div>
@@ -34,9 +34,22 @@ export default function Header({
             </div>
           </div>
 
-          {/* Navigation Controls */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          {/* Navigation & Quick Calculator Controls */}
+          <div className="flex items-center space-x-2 sm:space-x-3">
             
+            {/* Direct Quick Calculator Button */}
+            {onOpenCalculator && (
+              <button
+                type="button"
+                onClick={onOpenCalculator}
+                className="flex items-center space-x-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 border border-blue-400/30"
+                title="Open Counter Calculator"
+              >
+                <Calculator className="w-4 h-4 text-blue-200" />
+                <span className="hidden sm:inline">Calculator Pad</span>
+              </button>
+            )}
+
             {/* Mode Switcher */}
             <div className="bg-slate-800 p-1 rounded-xl flex items-center border border-slate-700">
               <button
@@ -47,8 +60,8 @@ export default function Header({
                     : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
                 }`}
               >
-                <Calculator className="w-4 h-4" />
-                <span>Calculator</span>
+                <ShoppingBag className="w-4 h-4" />
+                <span>Shop Counter</span>
                 {cartCount > 0 && (
                   <span className="ml-1 px-1.5 py-0.5 text-xs bg-emerald-500 text-slate-950 font-bold rounded-full animate-pulse-subtle">
                     {cartCount}
@@ -65,7 +78,7 @@ export default function Header({
                 }`}
               >
                 <Settings className="w-4 h-4" />
-                <span>Manage Products</span>
+                <span className="hidden sm:inline">Manage</span>
                 <span className="text-xs px-1.5 py-0.5 bg-slate-700 text-slate-300 rounded-full">
                   {productCount}
                 </span>

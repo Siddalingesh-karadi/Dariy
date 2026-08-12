@@ -7,7 +7,7 @@ export const INITIAL_PRODUCTS = [
     name: "Dodla Toned Milk",
     price: 30,
     unit: "Packet",
-    category: "Milk & Dahi",
+    category: "Milk",
     image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop&q=80",
     badge: "500 ml"
   },
@@ -16,7 +16,7 @@ export const INITIAL_PRODUCTS = [
     name: "Dodla Full Cream Milk",
     price: 35,
     unit: "Packet",
-    category: "Milk & Dahi",
+    category: "Milk",
     image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&auto=format&fit=crop&q=80",
     badge: "500 ml"
   },
@@ -25,7 +25,7 @@ export const INITIAL_PRODUCTS = [
     name: "Dodla Fresh Curd",
     price: 25,
     unit: "Cup",
-    category: "Milk & Dahi",
+    category: "Curd",
     image: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&auto=format&fit=crop&q=80",
     badge: "200 g"
   },
@@ -34,7 +34,7 @@ export const INITIAL_PRODUCTS = [
     name: "Dodla Curd Pouch",
     price: 32,
     unit: "Packet",
-    category: "Milk & Dahi",
+    category: "Curd",
     image: "https://images.unsplash.com/photo-1571217865189-d99bc4d28341?w=400&auto=format&fit=crop&q=80",
     badge: "500 g"
   },
@@ -43,7 +43,7 @@ export const INITIAL_PRODUCTS = [
     name: "Dodla Spiced Buttermilk",
     price: 15,
     unit: "Bottle",
-    category: "Beverages",
+    category: "Beverages & Lassi",
     image: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?w=400&auto=format&fit=crop&q=80",
     badge: "200 ml"
   },
@@ -52,7 +52,7 @@ export const INITIAL_PRODUCTS = [
     name: "Dodla Lassi",
     price: 20,
     unit: "Cup",
-    category: "Beverages",
+    category: "Beverages & Lassi",
     image: "https://images.unsplash.com/photo-1553787499-6f9133860278?w=400&auto=format&fit=crop&q=80",
     badge: "200 ml"
   },
@@ -61,7 +61,7 @@ export const INITIAL_PRODUCTS = [
     name: "Dodla Fresh Paneer",
     price: 120,
     unit: "Packet",
-    category: "Ghee & Butter",
+    category: "Paneer",
     image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400&auto=format&fit=crop&q=80",
     badge: "200 g"
   },
@@ -70,7 +70,7 @@ export const INITIAL_PRODUCTS = [
     name: "Dodla Cow Ghee",
     price: 650,
     unit: "Kg",
-    category: "Ghee & Butter",
+    category: "Ghee",
     image: "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400&auto=format&fit=crop&q=80",
     badge: "Pure Ghee"
   },
@@ -114,9 +114,11 @@ export const INITIAL_PRODUCTS = [
 
 export const CATEGORIES = [
   "All",
-  "Milk & Dahi",
-  "Beverages",
-  "Ghee & Butter",
+  "Milk",
+  "Curd",
+  "Ghee",
+  "Paneer",
+  "Beverages & Lassi",
   "Sweets",
   "Ice Cream",
   "Others"
@@ -130,3 +132,4 @@ export const UNITS = [
   "Kg",
   "Litre"
 ];
+
