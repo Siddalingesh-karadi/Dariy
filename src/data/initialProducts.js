@@ -4,11 +4,11 @@
 export const INITIAL_PRODUCTS = [
   {
     id: "prod-1",
-    name: "Dodla Toned Milk",
+    name: "Dodla Standardised Milk",
     price: 30,
     unit: "Packet",
     category: "Milk",
-    image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop&q=80",
+    image: "https://res.cloudinary.com/me0t8wwp/image/upload/v1786636791/02_standardised_milk.jpg",
     badge: "500 ml"
   },
   {
@@ -17,7 +17,7 @@ export const INITIAL_PRODUCTS = [
     price: 35,
     unit: "Packet",
     category: "Milk",
-    image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&auto=format&fit=crop&q=80",
+    image: "https://res.cloudinary.com/me0t8wwp/image/upload/v1786636791/01_full_cream_milk.jpg",
     badge: "500 ml"
   },
   {
