@@ -14,8 +14,7 @@ import {
   Minus,
   Check,
   Milk,
-  Edit2,
-  Trash2
+  Undo2
 } from 'lucide-react';
 import { CATEGORIES } from '../data/initialProducts';
 
@@ -36,11 +35,11 @@ export default function ProductSelectionStep({
   onAddToCart,
   onDecreaseFromCart,
   onOpenAddModal,
-  onEditProduct,
-  onDeleteProduct,
   onAddCustomAmount,
   onOpenCalculator,
   onGoToCheckout,
+  onUndoCart,
+  canUndo = false,
   grandTotal
 }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -243,7 +242,7 @@ export default function ProductSelectionStep({
         {/* 1-Tap Quick Amount Presets */}
         <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
           <span className="text-[10px] font-bold text-slate-400 mr-1">Quick:</span>
-          {[10, 20, 30, 50, 100, 200, 500].map(amt => (
+          {[10, 15, 20, 30, 50, 100, 500].map(amt => (
             <button
               key={amt}
               type="button"
@@ -289,8 +288,6 @@ export default function ProductSelectionStep({
                         inCartQty={cartQtyMap[product.id] || 0}
                         onAddToCart={onAddToCart}
                         onDecrease={onDecreaseFromCart}
-                        onEdit={onEditProduct}
-                        onDelete={onDeleteProduct}
                       />
                     ))}
                   </div>
@@ -324,29 +321,8 @@ export default function ProductSelectionStep({
                             </div>
                           </div>
 
-                          {/* Quick Edit/Delete & + / - Controls in List View */}
-                          <div className="flex items-center space-x-1.5 shrink-0">
-                            {onEditProduct && (
-                              <button
-                                type="button"
-                                onClick={() => onEditProduct(product)}
-                                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Edit item amount & details"
-                              >
-                                <Edit2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                            {onDeleteProduct && (
-                              <button
-                                type="button"
-                                onClick={() => onDeleteProduct(product.id)}
-                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                                title="Delete item"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-
+                          {/* Direct + / - Controls in List View */}
+                          <div className="shrink-0">
                             {qty > 0 ? (
                               <div className="flex items-center space-x-1.5 bg-blue-100 p-0.5 rounded-xl border border-blue-200">
                                 <button
@@ -402,13 +378,18 @@ export default function ProductSelectionStep({
         </div>
       )}
 
-      {/* 4. STICKY MOBILE BOTTOM ACTION BAR (NEXT: SEE BILL) */}
+      {/* 4. STICKY MOBILE BOTTOM ACTION BAR (CLICKABLE CART & UNDO) */}
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-slate-900/95 text-white border-t border-slate-800 p-2.5 shadow-2xl backdrop-blur-md">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-2.5">
           
-          <div className="flex items-center space-x-2.5">
-            <div className="relative bg-blue-600/30 p-2 rounded-xl border border-blue-500/40">
-              <ShoppingCart className="w-5 h-5 text-blue-400" />
+          {/* Clickable Cart Summary Container */}
+          <div 
+            onClick={onGoToCheckout}
+            className="flex items-center space-x-2.5 cursor-pointer group p-1 -ml-1 rounded-xl hover:bg-slate-800/80 transition-colors"
+            title="Click to view selected items & bill"
+          >
+            <div className="relative bg-blue-600/30 group-hover:bg-blue-600/50 p-2 rounded-xl border border-blue-500/40 transition-colors">
+              <ShoppingCart className="w-5 h-5 text-blue-400 group-hover:text-blue-300" />
               {totalCartCount > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 bg-emerald-500 text-slate-950 font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-pulse">
                   {totalCartCount}
@@ -416,26 +397,51 @@ export default function ProductSelectionStep({
               )}
             </div>
             <div>
-              <div className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Total</div>
+              <div className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-blue-300 transition-colors">
+                Total (Click to View Bill)
+              </div>
               <div className="text-lg sm:text-xl font-black text-white leading-none">
                 ₹{grandTotal.toFixed(2).replace(/\.00$/, '')}
               </div>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onGoToCheckout}
-            disabled={cartItems.length === 0}
-            className={`px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm flex items-center space-x-1.5 shadow-lg transition-all active:scale-95 shrink-0 ${
-              cartItems.length > 0
-                ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 border-2 border-emerald-400'
-                : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-            }`}
-          >
-            <span>NEXT: SEE BILL</span>
-            <ArrowRight className="w-4 h-4 stroke-[3]" />
-          </button>
+          {/* Action Buttons: Undo & Next (See Bill) */}
+          <div className="flex items-center space-x-2 shrink-0">
+            {onUndoCart && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUndoCart();
+                }}
+                disabled={!canUndo}
+                className={`px-2.5 py-2 rounded-xl text-xs font-bold flex items-center space-x-1 transition-all border ${
+                  canUndo
+                    ? 'bg-slate-800 hover:bg-amber-600 text-amber-300 hover:text-white border-amber-500/40 shadow-sm active:scale-95'
+                    : 'bg-slate-800/40 text-slate-600 border-slate-800 cursor-not-allowed'
+                }`}
+                title={canUndo ? 'Undo last cart action' : 'Nothing to undo'}
+              >
+                <Undo2 className="w-4 h-4" />
+                <span className="hidden xs:inline">Undo</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onGoToCheckout}
+              disabled={cartItems.length === 0}
+              className={`px-3.5 py-2.5 rounded-xl font-black text-xs sm:text-sm flex items-center space-x-1.5 shadow-lg transition-all active:scale-95 shrink-0 ${
+                cartItems.length > 0
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 border-2 border-emerald-400'
+                  : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+              }`}
+            >
+              <span>SEE BILL</span>
+              <ArrowRight className="w-4 h-4 stroke-[3]" />
+            </button>
+          </div>
 
         </div>
       </div>

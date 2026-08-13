@@ -19,9 +19,22 @@ export default function App() {
   const [products, setProducts] = useState(getStoredProducts);
   const [shopInfo, setShopInfo] = useState(getStoredShopInfo);
   const [cart, setCart] = useState([]);
+  const [cartHistory, setCartHistory] = useState([]);
   const [amountReceived, setAmountReceived] = useState('');
   const [activeTab, setActiveTab] = useState('calculator'); // 'calculator' | 'manage'
   const [step, setStep] = useState(1); // 1: Select Items, 2: Checkout & Return
+
+  // Helper to record cart snapshot for Undo
+  const saveCartSnapshot = (currentCart) => {
+    setCartHistory((prev) => [...prev.slice(-20), currentCart]);
+  };
+
+  const handleUndoCart = () => {
+    if (cartHistory.length === 0) return;
+    const previousCart = cartHistory[cartHistory.length - 1];
+    setCartHistory((prev) => prev.slice(0, prev.length - 1));
+    setCart(previousCart);
+  };
 
   // Modals state
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -73,6 +86,7 @@ export default function App() {
 
   // Add Product to Cart
   const handleAddToCart = (product) => {
+    saveCartSnapshot(cart);
     setCart((prevCart) => {
       const existing = prevCart.find((item) => item.id === product.id);
       if (existing) {
@@ -101,6 +115,7 @@ export default function App() {
 
   // Decrease Product Quantity from Cart
   const handleDecreaseFromCart = (product) => {
+    saveCartSnapshot(cart);
     setCart((prevCart) => {
       const existing = prevCart.find((item) => item.id === product.id);
       if (!existing) return prevCart;
@@ -123,6 +138,7 @@ export default function App() {
   const handleAddCustomAmount = (amount, name = 'Custom Item') => {
     const parsed = parseFloat(amount);
     if (isNaN(parsed) || parsed <= 0) return;
+    saveCartSnapshot(cart);
     const customItem = {
       id: `custom-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       name: name.trim() || 'Custom Item',
@@ -136,6 +152,7 @@ export default function App() {
 
   // Update Item Quantity in Cart
   const handleUpdateQuantity = (productId, newQuantity) => {
+    saveCartSnapshot(cart);
     if (newQuantity <= 0) {
       handleRemoveFromCart(productId);
     } else {
@@ -149,6 +166,7 @@ export default function App() {
 
   // Remove Item from Cart
   const handleRemoveFromCart = (productId) => {
+    saveCartSnapshot(cart);
     setCart((prevCart) => {
       const nextCart = prevCart.filter((item) => item.id !== productId);
       if (nextCart.length === 0 && step === 2) {
@@ -275,11 +293,11 @@ export default function App() {
               onAddToCart={handleAddToCart}
               onDecreaseFromCart={handleDecreaseFromCart}
               onOpenAddModal={handleOpenAddModal}
-              onEditProduct={handleOpenEditModal}
-              onDeleteProduct={handleDeleteProduct}
               onAddCustomAmount={handleAddCustomAmount}
               onOpenCalculator={() => setIsCalculatorModalOpen(true)}
               onGoToCheckout={() => handleSetStep(2)}
+              onUndoCart={handleUndoCart}
+              canUndo={cartHistory.length > 0}
               grandTotal={grandTotal}
             />
           ) : (

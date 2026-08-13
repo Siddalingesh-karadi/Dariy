@@ -45,21 +45,49 @@ export default function ProductFormModal({
 
   if (!isOpen) return null;
 
-  // Handle local image file upload & convert to Base64 Data URL
+  // Handle local image file upload & compress to lightweight Data URL (<50KB) for mobile LocalStorage support
   const handleImageFileUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, image: 'Image size should be less than 2MB' }));
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageUrl(reader.result);
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 400;
+        const MAX_HEIGHT = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round((width * MAX_HEIGHT) / height);
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert canvas to compressed JPEG Base64 (~30KB)
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        setImageUrl(compressedDataUrl);
         setErrors((prev) => ({ ...prev, image: null }));
       };
-      reader.readAsDataURL(file);
-    }
+      img.onerror = () => {
+        setErrors((prev) => ({ ...prev, image: 'Unable to load image file' }));
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
   };
 
   // Smart Auto Category Selection based on Product Name

@@ -119,7 +119,7 @@ export default function CheckoutStep({
         {/* 1-Tap Quick Extra Presets */}
         <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
           <span className="text-[10px] font-bold text-slate-400 mr-1">Quick:</span>
-          {[10, 20, 30, 50, 100, 200].map(val => (
+          {[10, 15, 20, 30, 50, 100].map(val => (
             <button
               key={val}
               type="button"
