@@ -8,7 +8,6 @@ import {
   Milk, 
   PlusCircle, 
   Tag, 
-  Wallet, 
   CheckCircle2, 
   AlertCircle 
 } from 'lucide-react';
@@ -25,9 +24,8 @@ export default function CheckoutStep({
   onNewCustomer,
   onBackToSelection
 }) {
-  const [customAmount, setCustomAmount] = useState('');
-  const [customTitle, setCustomTitle] = useState('');
-  const [showAddCustom, setShowAddCustom] = useState(false);
+  // Extra amount quick input state (ONLY AMOUNT, NO ITEM NAME)
+  const [extraAmount, setExtraAmount] = useState('');
 
   const parsedReceived = parseFloat(amountReceived) || 0;
   const isPaidEnough = parsedReceived >= grandTotal;
@@ -36,16 +34,20 @@ export default function CheckoutStep({
 
   const quickCashPresets = [50, 100, 200, 500];
 
-  const handleAddCustom = (e) => {
+  const handleAddExtraAmount = (e) => {
     e.preventDefault();
-    const val = parseFloat(customAmount);
+    const val = parseFloat(extraAmount);
     if (!val || val <= 0) return;
     if (onAddCustomAmount) {
-      onAddCustomAmount(val, customTitle.trim() || 'Custom Item');
+      onAddCustomAmount(val, 'Extra Amount');
     }
-    setCustomAmount('');
-    setCustomTitle('');
-    setShowAddCustom(false);
+    setExtraAmount('');
+  };
+
+  const handlePresetExtra = (presetVal) => {
+    if (onAddCustomAmount) {
+      onAddCustomAmount(presetVal, 'Extra Amount');
+    }
   };
 
   const handleQuickAddCash = (amount) => {
@@ -57,113 +59,105 @@ export default function CheckoutStep({
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-4 pb-20">
+    <div className="max-w-3xl mx-auto space-y-3.5 pb-20">
       
       {/* Top Navigation & Title Bar */}
-      <div className="flex items-center justify-between bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex items-center justify-between bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
         <button
           type="button"
           onClick={onBackToSelection}
-          className="flex items-center space-x-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs sm:text-sm font-bold transition-all active:scale-95"
+          className="flex items-center space-x-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs sm:text-sm font-extrabold transition-all active:scale-95"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4 stroke-[3]" />
           <span>Add More Items</span>
         </button>
 
         <div className="text-right">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+          <span className="text-[10px] font-black uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
             Step 2 of 2
           </span>
-          <h2 className="font-extrabold text-sm sm:text-base text-slate-900 leading-tight mt-0.5">
-            Bill Review & Cash Return
+          <h2 className="font-black text-xs sm:text-base text-slate-900 leading-tight mt-0.5">
+            Bill Review & Cash Change
           </h2>
         </div>
       </div>
 
-      {/* 1. ITEMIZED BILL SUMMARY CARD */}
+      {/* 1. INSTANT EXTRA AMOUNT WIDGET (REQUEST 4) */}
+      <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 p-3 sm:p-4 rounded-2xl text-white shadow-md border border-blue-900/40 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-1 text-xs font-black uppercase tracking-wider text-blue-300">
+            <Tag className="w-4 h-4 text-blue-400" />
+            <span>Add Extra Amount to Bill</span>
+          </div>
+          <span className="text-[10px] text-blue-300/80 font-medium">Add extra item/charge</span>
+        </div>
+
+        <form onSubmit={handleAddExtraAmount} className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">₹</span>
+            <input
+              type="number"
+              min="1"
+              step="any"
+              required
+              value={extraAmount}
+              onChange={(e) => setExtraAmount(e.target.value)}
+              placeholder="Enter extra amount (e.g. 20)..."
+              className="w-full pl-7 pr-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-sm font-black text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition-all shadow-md active:scale-95 shrink-0 flex items-center justify-center space-x-1"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>+ Add to Bill</span>
+          </button>
+        </form>
+
+        {/* 1-Tap Quick Extra Presets */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+          <span className="text-[10px] font-bold text-slate-400 mr-1">Quick:</span>
+          {[10, 20, 30, 50, 100, 200].map(val => (
+            <button
+              key={val}
+              type="button"
+              onClick={() => handlePresetExtra(val)}
+              className="px-2.5 py-1 bg-slate-800 hover:bg-blue-600 text-blue-200 hover:text-white rounded-lg text-xs font-extrabold border border-slate-700 transition-all active:scale-95"
+            >
+              +₹{val}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 2. ITEMIZED BILL SUMMARY CARD */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
         
-        <div className="p-3.5 bg-slate-900 text-white flex items-center justify-between">
+        <div className="p-3 bg-slate-900 text-white flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <ShoppingCart className="w-5 h-5 text-blue-400" />
-            <h3 className="font-bold text-sm sm:text-base">Items in Bill</h3>
-            <span className="bg-blue-600 text-white text-xs font-extrabold px-2 py-0.5 rounded-full">
+            <ShoppingCart className="w-4 h-4 text-blue-400" />
+            <h3 className="font-bold text-xs sm:text-sm">Items in Bill</h3>
+            <span className="bg-blue-600 text-white text-[11px] font-black px-2 py-0.5 rounded-full">
               {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'}
             </span>
           </div>
 
-          <div className="flex items-center space-x-2">
+          {cartItems.length > 0 && (
             <button
               type="button"
-              onClick={() => setShowAddCustom(!showAddCustom)}
-              className="text-xs bg-slate-800 hover:bg-slate-700 text-blue-300 px-2.5 py-1 rounded-lg border border-slate-700 flex items-center space-x-1 font-bold transition-colors"
+              onClick={onClearCart}
+              className="text-xs text-rose-300 hover:text-white flex items-center space-x-1 font-bold px-2 py-1 rounded hover:bg-rose-900/50 transition-colors"
             >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>+ Extra Item</span>
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Clear Bill</span>
             </button>
-
-            {cartItems.length > 0 && (
-              <button
-                type="button"
-                onClick={onClearCart}
-                className="text-xs text-rose-300 hover:text-white flex items-center space-x-1 font-bold px-2 py-1 rounded hover:bg-rose-900/50 transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Clear</span>
-              </button>
-            )}
-          </div>
+          )}
         </div>
 
-        {/* Quick Add Extra Item Form inside Checkout */}
-        {showAddCustom && (
-          <form onSubmit={handleAddCustom} className="p-3 bg-blue-50 border-b border-blue-100 space-y-2 animate-fade-in">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-blue-900 flex items-center space-x-1">
-                <Tag className="w-3.5 h-3.5 text-blue-600" />
-                <span>Add Extra Unlisted Item</span>
-              </span>
-              <button
-                type="button"
-                onClick={() => setShowAddCustom(false)}
-                className="text-[11px] text-blue-600 hover:text-blue-900 font-bold"
-              >
-                Cancel
-              </button>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={customTitle}
-                onChange={(e) => setCustomTitle(e.target.value)}
-                placeholder="Item name (optional)"
-                className="flex-1 px-3 py-2 bg-white border border-blue-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <div className="relative w-28">
-                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">₹</span>
-                <input
-                  type="number"
-                  min="1"
-                  step="any"
-                  required
-                  value={customAmount}
-                  onChange={(e) => setCustomAmount(e.target.value)}
-                  placeholder="Amount"
-                  className="w-full pl-6 pr-2 py-2 bg-white border border-blue-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <button
-                type="submit"
-                className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-colors shrink-0"
-              >
-                Add
-              </button>
-            </div>
-          </form>
-        )}
-
         {/* Item List */}
-        <div className="p-3 sm:p-4 divide-y divide-slate-100 space-y-3 max-h-[320px] overflow-y-auto">
+        <div className="p-3 sm:p-4 divide-y divide-slate-100 space-y-2.5 max-h-[300px] overflow-y-auto">
           {cartItems.length > 0 ? (
             cartItems.map((item) => {
               const itemTotal = parseFloat((item.price * item.quantity).toFixed(2));
@@ -171,10 +165,10 @@ export default function CheckoutStep({
               return (
                 <div
                   key={item.id}
-                  className="pt-3 first:pt-0 flex items-center justify-between gap-2"
+                  className="pt-2.5 first:pt-0 flex items-center justify-between gap-2"
                 >
-                  <div className="flex items-center space-x-3 min-w-0 flex-1">
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center border border-slate-200 relative">
+                  <div className="flex items-center space-x-2.5 min-w-0 flex-1">
+                    <div className="w-9 h-9 rounded-xl bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center border border-slate-200 relative">
                       {item.image ? (
                         <img
                           src={item.image}
@@ -183,11 +177,11 @@ export default function CheckoutStep({
                           onError={(e) => { e.target.style.display = 'none'; }}
                         />
                       ) : (
-                        <Milk className="w-5 h-5 text-slate-400" />
+                        <Milk className="w-4 h-4 text-slate-400" />
                       )}
                     </div>
                     <div className="min-w-0">
-                      <h4 className="font-bold text-slate-900 text-xs sm:text-sm truncate">
+                      <h4 className="font-extrabold text-slate-900 text-xs sm:text-sm truncate">
                         {item.name}
                       </h4>
                       <p className="text-[11px] text-slate-500 font-medium">
@@ -205,7 +199,7 @@ export default function CheckoutStep({
                     />
                   </div>
 
-                  <div className="text-right shrink-0 min-w-[65px]">
+                  <div className="text-right shrink-0 min-w-[60px]">
                     <div className="text-xs sm:text-sm font-black text-slate-900">
                       ₹{itemTotal}
                     </div>
@@ -217,16 +211,16 @@ export default function CheckoutStep({
               );
             })
           ) : (
-            <div className="py-8 text-center text-slate-400 text-xs font-semibold">
+            <div className="py-6 text-center text-slate-400 text-xs font-bold">
               No items in current bill. Go back to select items.
             </div>
           )}
         </div>
 
         {/* Grand Total Footer Banner */}
-        <div className="p-4 bg-slate-900 text-white border-t border-slate-800 flex items-center justify-between">
+        <div className="p-3.5 bg-slate-900 text-white border-t border-slate-800 flex items-center justify-between">
           <div>
-            <span className="text-xs font-extrabold uppercase tracking-wider text-blue-400">
+            <span className="text-[10px] font-black uppercase tracking-wider text-blue-400">
               Total Amount Payable
             </span>
             <div className="text-2xl sm:text-3xl font-black text-white tracking-tight">
@@ -237,7 +231,7 @@ export default function CheckoutStep({
             <button
               onClick={handleExactCash}
               type="button"
-              className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-xs font-bold rounded-xl text-white transition-all shadow-sm"
+              className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-xs font-black rounded-xl text-white transition-all shadow-sm active:scale-95 border border-blue-400/30"
             >
               Exact Cash
             </button>
@@ -246,10 +240,10 @@ export default function CheckoutStep({
 
       </div>
 
-      {/* 2. CASH RECEIVED & CHANGE CALCULATOR */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-md p-4 sm:p-5 space-y-4">
-        <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+      {/* 3. CASH RECEIVED & CHANGE CALCULATOR */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-md p-3.5 sm:p-5 space-y-3">
+        <div className="space-y-1.5">
+          <label className="block text-xs font-black uppercase tracking-wider text-slate-700">
             Amount Received from Customer (₹)
           </label>
           
@@ -263,13 +257,13 @@ export default function CheckoutStep({
               step="any"
               value={amountReceived}
               onChange={(e) => setAmountReceived(e.target.value)}
-              placeholder="Enter cash given by customer..."
-              className="w-full pl-9 pr-14 py-3 bg-slate-50 border-2 border-slate-300 rounded-xl text-2xl font-black text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all"
+              placeholder="Enter cash given..."
+              className="w-full pl-9 pr-14 py-2.5 bg-slate-50 border-2 border-slate-300 rounded-xl text-xl sm:text-2xl font-black text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all"
             />
             {amountReceived && (
               <button
                 onClick={() => setAmountReceived('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 hover:text-slate-900 bg-slate-200 px-2.5 py-1 rounded-md"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 hover:text-slate-900 bg-slate-200 px-2 py-1 rounded-md"
               >
                 Clear
               </button>
@@ -277,13 +271,13 @@ export default function CheckoutStep({
           </div>
 
           {/* Quick Cash Tender Presets */}
-          <div className="flex flex-wrap gap-2 pt-1">
+          <div className="flex flex-wrap gap-1.5 pt-1">
             {quickCashPresets.map((amount) => (
               <button
                 key={amount}
                 type="button"
                 onClick={() => handleQuickAddCash(amount)}
-                className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-black rounded-xl border border-slate-300 transition-all active:scale-95"
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-black rounded-xl border border-slate-300 transition-all active:scale-95"
               >
                 ₹{amount}
               </button>
@@ -291,41 +285,41 @@ export default function CheckoutStep({
           </div>
         </div>
 
-        {/* 3. RETURN CHANGE / REMAINING DISPLAY BANNER */}
+        {/* 4. RETURN CHANGE / REMAINING DISPLAY BANNER */}
         {grandTotal > 0 && amountReceived !== '' && (
-          <div className="pt-2">
+          <div className="pt-1">
             {isPaidEnough ? (
               /* GREEN RETURN CHANGE BADGE */
-              <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl p-4 sm:p-5 shadow-lg border border-emerald-500 flex items-center justify-between animate-pulse-subtle">
+              <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl p-3.5 sm:p-4 shadow-lg border border-emerald-500 flex items-center justify-between">
                 <div>
-                  <div className="flex items-center space-x-1 text-emerald-200 text-xs uppercase font-extrabold tracking-wider">
+                  <div className="flex items-center space-x-1 text-emerald-200 text-[11px] uppercase font-black tracking-wider">
                     <CheckCircle2 className="w-4 h-4" />
                     <span>Return to Customer</span>
                   </div>
-                  <div className="text-3xl sm:text-4xl font-black mt-1 text-white tracking-tight">
+                  <div className="text-2xl sm:text-3xl font-black mt-0.5 text-white tracking-tight">
                     RETURN ₹{formattedDifference}
                   </div>
                 </div>
                 <div className="hidden sm:block text-right">
-                  <span className="text-xs bg-emerald-800/80 px-3 py-1.5 rounded-xl font-bold border border-emerald-400/30">
+                  <span className="text-xs bg-emerald-800/80 px-3 py-1 rounded-xl font-black border border-emerald-400/30">
                     Payment Complete
                   </span>
                 </div>
               </div>
             ) : (
               /* ORANGE REMAINING BADGE */
-              <div className="bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl p-4 sm:p-5 shadow-md border border-amber-400 flex items-center justify-between">
+              <div className="bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl p-3.5 sm:p-4 shadow-md border border-amber-400 flex items-center justify-between">
                 <div>
-                  <div className="flex items-center space-x-1 text-amber-100 text-xs uppercase font-extrabold tracking-wider">
+                  <div className="flex items-center space-x-1 text-amber-100 text-[11px] uppercase font-black tracking-wider">
                     <AlertCircle className="w-4 h-4" />
                     <span>Customer Pays Less</span>
                   </div>
-                  <div className="text-2xl sm:text-3xl font-black mt-1 text-white tracking-tight">
+                  <div className="text-xl sm:text-2xl font-black mt-0.5 text-white tracking-tight">
                     REMAINING ₹{formattedDifference}
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs bg-amber-700/80 px-2.5 py-1 rounded-lg font-bold border border-amber-300/30">
+                  <span className="text-xs bg-amber-700/80 px-2.5 py-1 rounded-lg font-black border border-amber-300/30">
                     Pending ₹{formattedDifference}
                   </span>
                 </div>
@@ -335,12 +329,12 @@ export default function CheckoutStep({
         )}
       </div>
 
-      {/* 4. NEW CUSTOMER RESET BUTTON */}
-      <div className="pt-2">
+      {/* 5. NEW CUSTOMER RESET BUTTON */}
+      <div className="pt-1">
         <button
           type="button"
           onClick={onNewCustomer}
-          className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-base sm:text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all flex items-center justify-center space-x-2 touch-active border-2 border-emerald-500"
+          className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-base rounded-2xl shadow-xl hover:shadow-2xl transition-all flex items-center justify-center space-x-2 touch-active border-2 border-emerald-500"
         >
           <RotateCcw className="w-5 h-5 stroke-[2.5]" />
           <span className="tracking-wide">FINISH & START NEW CUSTOMER 🔄</span>

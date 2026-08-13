@@ -1,6 +1,20 @@
 import React, { useState, useMemo } from 'react';
 import ProductCard from './ProductCard';
-import { Search, X, PlusCircle, LayoutGrid, Calculator, Tag, ArrowRight, ShoppingCart } from 'lucide-react';
+import { 
+  Search, 
+  X, 
+  PlusCircle, 
+  LayoutGrid, 
+  List, 
+  Calculator, 
+  Tag, 
+  ArrowRight, 
+  ShoppingCart,
+  Plus,
+  Minus,
+  Check,
+  Milk
+} from 'lucide-react';
 import { CATEGORIES } from '../data/initialProducts';
 
 const CATEGORY_META = {
@@ -18,6 +32,7 @@ export default function ProductSelectionStep({
   products,
   cartItems,
   onAddToCart,
+  onDecreaseFromCart,
   onOpenAddModal,
   onAddCustomAmount,
   onOpenCalculator,
@@ -26,10 +41,10 @@ export default function ProductSelectionStep({
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
   
-  // Custom amount quick input state
+  // Custom amount quick input state (ONLY AMOUNT, NO ITEM NAME)
   const [customPrice, setCustomPrice] = useState('');
-  const [customName, setCustomName] = useState('');
 
   const totalCartCount = useMemo(() => {
     return cartItems.reduce((sum, i) => sum + Math.ceil(i.quantity), 0);
@@ -74,50 +89,83 @@ export default function ProductSelectionStep({
     const amount = parseFloat(customPrice);
     if (!amount || amount <= 0) return;
     if (onAddCustomAmount) {
-      onAddCustomAmount(amount, customName.trim() || 'Custom Item');
+      onAddCustomAmount(amount, 'Unlisted Item');
     }
     setCustomPrice('');
-    setCustomName('');
+  };
+
+  const handlePresetAmount = (preset) => {
+    if (onAddCustomAmount) {
+      onAddCustomAmount(preset, 'Unlisted Item');
+    }
   };
 
   return (
-    <div className="space-y-4 pb-24">
+    <div className="space-y-3.5 pb-24">
       
-      {/* 1. SEARCH & CATEGORY SELECTOR */}
-      <div className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+      {/* 1. SEARCH, VIEW TOGGLE & CATEGORY SELECTOR */}
+      <div className="bg-white p-2.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+        <div className="flex items-center gap-2">
           
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search Milk, Curd, Ghee, Paneer..."
-              className="w-full pl-10 pr-9 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+              placeholder="Search items..."
+              className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1.5"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
+          {/* Grid vs List View Mode Toggle */}
+          <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 shrink-0">
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-lg transition-all ${
+                viewMode === 'grid'
+                  ? 'bg-white text-blue-600 shadow-sm font-bold'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+              title="Grid View"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-lg transition-all ${
+                viewMode === 'list'
+                  ? 'bg-white text-blue-600 shadow-sm font-bold'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+              title="Compact List View"
+            >
+              <List className="w-4 h-4" />
+            </button>
+          </div>
+
           {/* Quick Actions (Calculator & Add Custom Product Modal) */}
-          <div className="flex items-center space-x-2 shrink-0">
+          <div className="flex items-center space-x-1.5 shrink-0">
             {onOpenCalculator && (
               <button
                 type="button"
                 onClick={onOpenCalculator}
-                className="flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm min-h-[44px]"
+                className="p-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center space-x-1"
                 title="Open Counter Calculator"
               >
                 <Calculator className="w-4 h-4 text-blue-400" />
-                <span>Calculator</span>
+                <span className="hidden sm:inline">Calc</span>
               </button>
             )}
 
@@ -125,10 +173,10 @@ export default function ProductSelectionStep({
               <button
                 type="button"
                 onClick={onOpenAddModal}
-                className="flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 px-3.5 py-2.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-xl text-xs sm:text-sm font-bold transition-all min-h-[44px]"
+                className="px-2.5 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-xl text-xs font-extrabold transition-all flex items-center space-x-1"
               >
                 <PlusCircle className="w-4 h-4" />
-                <span>+ Catalog</span>
+                <span className="hidden xs:inline">+ Catalog</span>
               </button>
             )}
           </div>
@@ -136,12 +184,12 @@ export default function ProductSelectionStep({
         </div>
 
         {/* Mobile Touch-Optimized Category Horizontal Scroll Pills */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-1.5 scrollbar-none touch-pan-x">
+        <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 scrollbar-none touch-pan-x">
           {CATEGORIES.map(category => (
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all min-h-[40px] flex items-center space-x-1.5 active:scale-95 ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all flex items-center space-x-1 active:scale-95 ${
                 selectedCategory === category
                   ? 'bg-slate-900 text-white shadow-md'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/60'
@@ -154,26 +202,19 @@ export default function ProductSelectionStep({
         </div>
       </div>
 
-      {/* 2. UNLISTED / MANUAL CUSTOM AMOUNT WIDGET */}
-      <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 p-3.5 sm:p-4 rounded-2xl text-white shadow-md border border-blue-900/40 space-y-2">
+      {/* 2. UNLISTED / MANUAL CUSTOM AMOUNT WIDGET (ONLY AMOUNT INPUT) */}
+      <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 p-3 rounded-2xl text-white shadow-md border border-blue-900/40 space-y-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-blue-300">
-            <Tag className="w-4 h-4 text-blue-400" />
-            <span>Unlisted Item / Custom Amount</span>
+          <div className="flex items-center space-x-1 text-[11px] font-black uppercase tracking-wider text-blue-300">
+            <Tag className="w-3.5 h-3.5 text-blue-400" />
+            <span>Quick Unlisted Amount</span>
           </div>
-          <span className="text-[11px] text-blue-300/80 font-medium">Add loose purchase</span>
+          <span className="text-[10px] text-blue-300/80 font-medium">Enter loose price (₹)</span>
         </div>
 
-        <form onSubmit={handleQuickAddCustom} className="flex gap-2">
-          <input
-            type="text"
-            value={customName}
-            onChange={(e) => setCustomName(e.target.value)}
-            placeholder="Item name (optional)"
-            className="flex-1 px-3 py-2.5 bg-slate-800/90 border border-slate-700 rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <div className="relative w-28 sm:w-36 shrink-0">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">₹</span>
+        <form onSubmit={handleQuickAddCustom} className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">₹</span>
             <input
               type="number"
               min="1"
@@ -181,103 +222,175 @@ export default function ProductSelectionStep({
               required
               value={customPrice}
               onChange={(e) => setCustomPrice(e.target.value)}
-              placeholder="Amount"
-              className="w-full pl-7 pr-2 py-2.5 bg-slate-800/90 border border-slate-700 rounded-xl text-sm font-black text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Enter amount (e.g. 50)..."
+              className="w-full pl-7 pr-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-sm font-black text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
+
           <button
             type="submit"
-            className="px-3.5 sm:px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition-all shadow-md active:scale-95 shrink-0 flex items-center justify-center space-x-1 min-h-[44px]"
+            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition-all shadow-md active:scale-95 shrink-0 flex items-center justify-center space-x-1"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>Add</span>
+            <span>Add to Bill</span>
           </button>
         </form>
+
+        {/* 1-Tap Quick Amount Presets */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+          <span className="text-[10px] font-bold text-slate-400 mr-1">Quick:</span>
+          {[10, 20, 30, 50, 100, 200, 500].map(amt => (
+            <button
+              key={amt}
+              type="button"
+              onClick={() => handlePresetAmount(amt)}
+              className="px-2.5 py-1 bg-slate-800 hover:bg-blue-600 text-blue-200 hover:text-white rounded-lg text-xs font-extrabold border border-slate-700 transition-all active:scale-95"
+            >
+              +₹{amt}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* 3. VISUAL PRODUCT CARDS BY CATEGORY */}
+      {/* 3. VISUAL PRODUCT DISPLAY (GRID OR COMPACT LIST VIEW) */}
       {filteredProducts.length > 0 ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {Object.entries(groupedProducts).map(([catName, catProducts]) => {
             if (catProducts.length === 0) return null;
 
             const meta = CATEGORY_META[catName] || { icon: '📦', color: 'from-slate-700 to-slate-800', badgeBg: 'bg-slate-100 text-slate-800' };
 
             return (
-              <section key={catName} className="space-y-3">
-                {/* Category Section Header */}
-                <div className="flex items-center justify-between bg-white px-3.5 py-2.5 rounded-xl border border-slate-200 shadow-sm sticky top-[65px] z-20 backdrop-blur-md bg-white/95">
+              <section key={catName} className="space-y-2">
+                {/* Category Header */}
+                <div className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm sticky top-[60px] z-20 backdrop-blur-md bg-white/95">
                   <div className="flex items-center space-x-2">
-                    <span className="text-xl">{meta.icon}</span>
-                    <h3 className="font-extrabold text-sm sm:text-base text-slate-900 tracking-tight">
+                    <span className="text-base">{meta.icon}</span>
+                    <h3 className="font-extrabold text-xs sm:text-sm text-slate-900 tracking-tight">
                       {catName}
                     </h3>
                   </div>
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${meta.badgeBg}`}>
+                  <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-full ${meta.badgeBg}`}>
                     {catProducts.length} {catProducts.length === 1 ? 'item' : 'items'}
                   </span>
                 </div>
 
-                {/* Mobile Responsive Grid: 2 columns on mobile, 3-4 on tablet/desktop */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
-                  {catProducts.map(product => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      inCartQty={cartQtyMap[product.id] || 0}
-                      onAddToCart={onAddToCart}
-                    />
-                  ))}
-                </div>
+                {/* VIEW MODE 1: GRID VIEW */}
+                {viewMode === 'grid' ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+                    {catProducts.map(product => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        inCartQty={cartQtyMap[product.id] || 0}
+                        onAddToCart={onAddToCart}
+                        onDecrease={onDecreaseFromCart}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  /* VIEW MODE 2: COMPACT LIST VIEW FOR HIGH DENSITY MOBILE COUNTER USE */
+                  <div className="bg-white rounded-2xl border border-slate-200 divide-y divide-slate-100 shadow-sm overflow-hidden">
+                    {catProducts.map(product => {
+                      const qty = cartQtyMap[product.id] || 0;
+                      return (
+                        <div
+                          key={product.id}
+                          className={`p-2.5 flex items-center justify-between gap-2 transition-colors ${
+                            qty > 0 ? 'bg-blue-50/40' : 'hover:bg-slate-50'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-2.5 min-w-0 flex-1">
+                            <div className="w-9 h-9 rounded-xl bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center border border-slate-200 relative">
+                              {product.image ? (
+                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <Milk className="w-4 h-4 text-blue-500" />
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-slate-900 text-xs sm:text-sm truncate">
+                                {product.name}
+                              </h4>
+                              <p className="text-[11px] font-black text-blue-700">
+                                ₹{product.price} <span className="text-[10px] text-slate-400 font-normal">/ {product.unit.toLowerCase()}</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Direct + / - Controls in List View */}
+                          <div className="shrink-0">
+                            {qty > 0 ? (
+                              <div className="flex items-center space-x-1.5 bg-blue-100 p-0.5 rounded-xl border border-blue-200">
+                                <button
+                                  type="button"
+                                  onClick={() => onDecreaseFromCart(product)}
+                                  className="w-7 h-7 rounded-lg bg-white text-blue-700 hover:bg-rose-600 hover:text-white flex items-center justify-center transition-all shadow-sm active:scale-95"
+                                >
+                                  <Minus className="w-3.5 h-3.5 stroke-[3]" />
+                                </button>
+                                <span className="w-5 text-center font-black text-xs text-blue-900">
+                                  {qty}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => onAddToCart(product)}
+                                  className="w-7 h-7 rounded-lg bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center transition-all shadow-sm active:scale-95"
+                                >
+                                  <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => onAddToCart(product)}
+                                className="px-3 py-1 rounded-xl bg-slate-100 text-slate-800 hover:bg-blue-600 hover:text-white font-extrabold text-xs flex items-center space-x-1 transition-all active:scale-95 border border-slate-200"
+                              >
+                                <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                                <span>Add</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </section>
             );
           })}
         </div>
       ) : (
-        /* Empty Search / Catalog State */
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-4 shadow-sm">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400">
-            <LayoutGrid className="w-8 h-8" />
+        /* Empty State */
+        <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-3 shadow-sm">
+          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400">
+            <LayoutGrid className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-800">
-              {products.length === 0 ? 'No products added yet' : 'No matching products found'}
-            </h3>
-            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-              {products.length === 0
-                ? 'Your product catalog is empty. Add items so you can start calculating.'
-                : `No products matching "${searchTerm}" in category "${selectedCategory}".`}
+            <h3 className="text-sm font-bold text-slate-800">No matching products</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              No products found matching "{searchTerm}".
             </p>
           </div>
-
-          {onOpenAddModal && (
-            <button
-              onClick={onOpenAddModal}
-              className="inline-flex items-center space-x-2 px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-md transition-colors text-sm"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>Add New Product</span>
-            </button>
-          )}
         </div>
       )}
 
-      {/* 4. STICKY MOBILE BOTTOM ACTION BAR (NEXT: REVIEW BILL & PAY) */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-slate-900/95 text-white border-t border-slate-800 p-3 shadow-2xl backdrop-blur-md">
+      {/* 4. STICKY MOBILE BOTTOM ACTION BAR (NEXT: SEE BILL) */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-slate-900/95 text-white border-t border-slate-800 p-2.5 shadow-2xl backdrop-blur-md">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
           
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2.5">
             <div className="relative bg-blue-600/30 p-2 rounded-xl border border-blue-500/40">
-              <ShoppingCart className="w-6 h-6 text-blue-400" />
+              <ShoppingCart className="w-5 h-5 text-blue-400" />
               {totalCartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-emerald-500 text-slate-950 font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-pulse-subtle">
+                <span className="absolute -top-1.5 -right-1.5 bg-emerald-500 text-slate-950 font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-pulse">
                   {totalCartCount}
                 </span>
               )}
             </div>
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Selection</div>
-              <div className="text-xl sm:text-2xl font-black text-white leading-none">
+              <div className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Total</div>
+              <div className="text-lg sm:text-xl font-black text-white leading-none">
                 ₹{grandTotal.toFixed(2).replace(/\.00$/, '')}
               </div>
             </div>
@@ -287,14 +400,14 @@ export default function ProductSelectionStep({
             type="button"
             onClick={onGoToCheckout}
             disabled={cartItems.length === 0}
-            className={`px-5 py-3 rounded-xl font-extrabold text-sm sm:text-base flex items-center space-x-2 shadow-lg transition-all active:scale-95 shrink-0 ${
+            className={`px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm flex items-center space-x-1.5 shadow-lg transition-all active:scale-95 shrink-0 ${
               cartItems.length > 0
                 ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 border-2 border-emerald-400'
                 : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
             }`}
           >
             <span>NEXT: SEE BILL</span>
-            <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            <ArrowRight className="w-4 h-4 stroke-[3]" />
           </button>
 
         </div>

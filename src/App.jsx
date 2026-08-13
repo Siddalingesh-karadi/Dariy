@@ -79,6 +79,26 @@ export default function App() {
     });
   };
 
+  // Decrease Product Quantity from Cart
+  const handleDecreaseFromCart = (product) => {
+    setCart((prevCart) => {
+      const existing = prevCart.find((item) => item.id === product.id);
+      if (!existing) return prevCart;
+
+      const isDecimal = product.unit.toLowerCase() === 'kg' || product.unit.toLowerCase() === 'litre';
+      const stepVal = isDecimal ? 0.25 : 1;
+      const newQty = parseFloat((existing.quantity - stepVal).toFixed(2));
+
+      if (newQty <= 0) {
+        return prevCart.filter((item) => item.id !== product.id);
+      } else {
+        return prevCart.map((item) =>
+          item.id === product.id ? { ...item, quantity: newQty } : item
+        );
+      }
+    });
+  };
+
   // Add Quick Custom Amount / Unlisted Item to Cart
   const handleAddCustomAmount = (amount, name = 'Custom Item') => {
     const parsed = parseFloat(amount);
@@ -233,6 +253,7 @@ export default function App() {
               products={products}
               cartItems={cart}
               onAddToCart={handleAddToCart}
+              onDecreaseFromCart={handleDecreaseFromCart}
               onOpenAddModal={() => setIsQuickAddModalOpen(true)}
               onAddCustomAmount={handleAddCustomAmount}
               onOpenCalculator={() => setIsCalculatorModalOpen(true)}
