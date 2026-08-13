@@ -11,26 +11,34 @@ export default function ProductFormModal({
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [unit, setUnit] = useState('Packet');
-  const [category, setCategory] = useState('Milk & Dahi');
+  const [category, setCategory] = useState('Milk');
   const [badge, setBadge] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [errors, setErrors] = useState({});
+  const [hasManuallySelectedCategory, setHasManuallySelectedCategory] = useState(false);
 
   useEffect(() => {
     if (editingProduct) {
       setName(editingProduct.name || '');
       setPrice(editingProduct.price ? editingProduct.price.toString() : '');
       setUnit(editingProduct.unit || 'Packet');
-      setCategory(editingProduct.category || 'Milk & Dahi');
+      let cat = editingProduct.category || 'Milk';
+      if (cat === 'Milk & Dahi' || cat === 'Milk & Curd' || cat === 'Milk and Curd') {
+        const nameLower = (editingProduct.name || '').toLowerCase();
+        cat = (nameLower.includes('curd') || nameLower.includes('dahi')) ? 'Curd' : 'Milk';
+      }
+      setCategory(cat);
       setBadge(editingProduct.badge || '');
       setImageUrl(editingProduct.image || '');
+      setHasManuallySelectedCategory(true);
     } else {
       setName('');
       setPrice('');
       setUnit('Packet');
-      setCategory('Milk & Dahi');
+      setCategory('Milk');
       setBadge('');
       setImageUrl('');
+      setHasManuallySelectedCategory(false);
     }
     setErrors({});
   }, [editingProduct, isOpen]);
@@ -52,6 +60,34 @@ export default function ProductFormModal({
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  // Smart Auto Category Selection based on Product Name
+  const handleNameInputChange = (val) => {
+    setName(val);
+    if (!editingProduct && !hasManuallySelectedCategory) {
+      const lower = val.toLowerCase();
+      if (lower.includes('curd') || lower.includes('dahi') || lower.includes(' दही')) {
+        setCategory('Curd');
+      } else if (lower.includes('milk') || lower.includes('दूध')) {
+        setCategory('Milk');
+      } else if (lower.includes('ghee') || lower.includes('घी')) {
+        setCategory('Ghee');
+      } else if (lower.includes('paneer') || lower.includes('पनीर')) {
+        setCategory('Paneer');
+      } else if (lower.includes('lassi') || lower.includes('buttermilk') || lower.includes('beverage')) {
+        setCategory('Beverages & Lassi');
+      } else if (lower.includes('sweet') || lower.includes('peda') || lower.includes('jamun')) {
+        setCategory('Sweets');
+      } else if (lower.includes('ice cream') || lower.includes('icecream') || lower.includes('kulfi')) {
+        setCategory('Ice Cream');
+      }
+    }
+  };
+
+  const handleCategoryInputChange = (val) => {
+    setCategory(val);
+    setHasManuallySelectedCategory(true);
   };
 
   const handleSubmit = (e) => {
@@ -116,7 +152,7 @@ export default function ProductFormModal({
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => handleNameInputChange(e.target.value)}
               placeholder="e.g. Dodla Toned Milk"
               className={`w-full px-4 py-2.5 bg-slate-50 border rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 ${
                 errors.name ? 'border-rose-500' : 'border-slate-300'
@@ -171,7 +207,7 @@ export default function ProductFormModal({
               </label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={(e) => handleCategoryInputChange(e.target.value)}
                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 {CATEGORIES.filter(c => c !== 'All').map((c) => (

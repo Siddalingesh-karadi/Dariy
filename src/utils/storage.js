@@ -9,7 +9,16 @@ export const getStoredProducts = () => {
     if (saved) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        // Clean up legacy categories if present
+        const sanitized = parsed.map((p) => {
+          let cat = p.category;
+          if (cat === 'Milk & Dahi' || cat === 'Milk & Curd' || cat === 'Milk and Curd') {
+            const nameLower = (p.name || '').toLowerCase();
+            cat = (nameLower.includes('curd') || nameLower.includes('dahi')) ? 'Curd' : 'Milk';
+          }
+          return { ...p, category: cat || 'Milk' };
+        });
+        return sanitized;
       }
     }
   } catch (err) {

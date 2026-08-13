@@ -24,7 +24,8 @@ export default function App() {
   const [step, setStep] = useState(1); // 1: Select Items, 2: Checkout & Return
 
   // Modals state
-  const [isQuickAddModalOpen, setIsQuickAddModalOpen] = useState(false);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [editingModalProduct, setEditingModalProduct] = useState(null);
   const [isCalculatorModalOpen, setIsCalculatorModalOpen] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState({
     isOpen: false,
@@ -34,6 +35,25 @@ export default function App() {
     confirmStyle: 'danger',
     onConfirm: () => {}
   });
+
+  const handleOpenAddModal = () => {
+    setEditingModalProduct(null);
+    setIsProductModalOpen(true);
+  };
+
+  const handleOpenEditModal = (product) => {
+    setEditingModalProduct(product);
+    setIsProductModalOpen(true);
+  };
+
+  const handleSaveModalProduct = (productData) => {
+    if (editingModalProduct) {
+      handleUpdateProduct(productData);
+    } else {
+      handleAddProduct(productData);
+      handleAddToCart(productData);
+    }
+  };
 
   // Sync products to LocalStorage
   useEffect(() => {
@@ -254,7 +274,9 @@ export default function App() {
               cartItems={cart}
               onAddToCart={handleAddToCart}
               onDecreaseFromCart={handleDecreaseFromCart}
-              onOpenAddModal={() => setIsQuickAddModalOpen(true)}
+              onOpenAddModal={handleOpenAddModal}
+              onEditProduct={handleOpenEditModal}
+              onDeleteProduct={handleDeleteProduct}
               onAddCustomAmount={handleAddCustomAmount}
               onOpenCalculator={() => setIsCalculatorModalOpen(true)}
               onGoToCheckout={() => handleSetStep(2)}
@@ -314,14 +336,15 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Quick Add Product Modal */}
+      {/* Add / Edit Product Modal */}
       <ProductFormModal
-        isOpen={isQuickAddModalOpen}
-        onClose={() => setIsQuickAddModalOpen(false)}
-        onSave={(newProd) => {
-          handleAddProduct(newProd);
-          handleAddToCart(newProd);
+        isOpen={isProductModalOpen}
+        onClose={() => {
+          setIsProductModalOpen(false);
+          setEditingModalProduct(null);
         }}
+        onSave={handleSaveModalProduct}
+        editingProduct={editingModalProduct}
       />
 
       {/* On-Screen Calculator Pad Modal */}

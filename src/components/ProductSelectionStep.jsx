@@ -13,7 +13,9 @@ import {
   Plus,
   Minus,
   Check,
-  Milk
+  Milk,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 import { CATEGORIES } from '../data/initialProducts';
 
@@ -34,6 +36,8 @@ export default function ProductSelectionStep({
   onAddToCart,
   onDecreaseFromCart,
   onOpenAddModal,
+  onEditProduct,
+  onDeleteProduct,
   onAddCustomAmount,
   onOpenCalculator,
   onGoToCheckout,
@@ -285,6 +289,8 @@ export default function ProductSelectionStep({
                         inCartQty={cartQtyMap[product.id] || 0}
                         onAddToCart={onAddToCart}
                         onDecrease={onDecreaseFromCart}
+                        onEdit={onEditProduct}
+                        onDelete={onDeleteProduct}
                       />
                     ))}
                   </div>
@@ -318,8 +324,29 @@ export default function ProductSelectionStep({
                             </div>
                           </div>
 
-                          {/* Direct + / - Controls in List View */}
-                          <div className="shrink-0">
+                          {/* Quick Edit/Delete & + / - Controls in List View */}
+                          <div className="flex items-center space-x-1.5 shrink-0">
+                            {onEditProduct && (
+                              <button
+                                type="button"
+                                onClick={() => onEditProduct(product)}
+                                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="Edit item amount & details"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                            {onDeleteProduct && (
+                              <button
+                                type="button"
+                                onClick={() => onDeleteProduct(product.id)}
+                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                title="Delete item"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+
                             {qty > 0 ? (
                               <div className="flex items-center space-x-1.5 bg-blue-100 p-0.5 rounded-xl border border-blue-200">
                                 <button

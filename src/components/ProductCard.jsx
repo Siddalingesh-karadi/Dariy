@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
-import { Plus, Minus, Check, Milk } from 'lucide-react';
+import { Plus, Minus, Check, Milk, Edit2, Trash2 } from 'lucide-react';
 
 export default function ProductCard({
   product,
   inCartQty = 0,
   onAddToCart,
-  onDecrease
+  onDecrease,
+  onEdit,
+  onDelete
 }) {
   const [imageError, setImageError] = useState(false);
   const isDecimalUnit = product.unit?.toLowerCase() === 'kg' || product.unit?.toLowerCase() === 'litre';
 
   const handleCardClick = (e) => {
-    // If clicking on quantity buttons, don't trigger full card click
-    if (e.target.closest('.qty-btn')) return;
+    // If clicking on action buttons or quantity controls, don't trigger full card click
+    if (e.target.closest('.qty-btn') || e.target.closest('.action-btn')) return;
     onAddToCart(product);
   };
 
@@ -25,6 +27,36 @@ export default function ProductCard({
           : 'border-slate-200 hover:border-blue-400'
       }`}
     >
+      {/* Top Left Quick Edit & Delete Actions */}
+      <div className="absolute top-2 left-2 z-10 flex items-center space-x-1">
+        {onEdit && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(product);
+            }}
+            className="action-btn w-7 h-7 rounded-lg bg-slate-900/80 hover:bg-blue-600 text-white backdrop-blur-sm flex items-center justify-center transition-colors shadow-sm"
+            title="Edit item & change price/amount"
+          >
+            <Edit2 className="w-3.5 h-3.5" />
+          </button>
+        )}
+        {onDelete && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(product.id);
+            }}
+            className="action-btn w-7 h-7 rounded-lg bg-slate-900/80 hover:bg-rose-600 text-white backdrop-blur-sm flex items-center justify-center transition-colors shadow-sm"
+            title="Delete product"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+
       {/* Active Quantity Badge Header */}
       {inCartQty > 0 && (
         <div className="absolute top-2 right-2 z-10 bg-blue-600 text-white font-black text-[11px] px-2 py-0.5 rounded-full shadow-md flex items-center space-x-1 border border-white">
