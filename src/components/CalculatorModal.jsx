@@ -33,6 +33,7 @@ export default function CalculatorModal({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, display, expression, isCalculated]);
 
   if (!isOpen) return null;
@@ -77,7 +78,7 @@ export default function CalculatorModal({
         const result = (val / 100).toString();
         setDisplay(result);
       }
-    } catch (err) {
+    } catch {
       setDisplay('Error');
     }
   };
@@ -128,7 +129,7 @@ export default function CalculatorModal({
         setExpression(fullExpr + ' =');
         setIsCalculated(true);
       }
-    } catch (err) {
+    } catch {
       setDisplay('Error');
     }
   };

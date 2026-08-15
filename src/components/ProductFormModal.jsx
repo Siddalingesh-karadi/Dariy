@@ -290,17 +290,34 @@ export default function ProductFormModal({
 
             {/* Image Preview */}
             {imageUrl && (
-              <div className="mt-2 w-full h-24 bg-slate-100 rounded-xl overflow-hidden relative border border-slate-200">
+              <div className="mt-2 w-full h-24 bg-slate-100 rounded-xl overflow-hidden relative border border-slate-200 flex items-center justify-center">
                 <img
                   src={imageUrl}
                   alt="Preview"
                   className="w-full h-full object-cover"
-                  onError={() => setErrors((prev) => ({ ...prev, image: 'Invalid image URL' }))}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    if (e.target.nextSibling) {
+                      e.target.nextSibling.style.display = 'flex';
+                    }
+                    setErrors((prev) => ({ ...prev, image: 'Invalid or inaccessible image URL' }));
+                  }}
                 />
+                <div 
+                  className="w-full h-full flex flex-col items-center justify-center bg-rose-50 text-rose-500 p-2 text-center"
+                  style={{ display: 'none' }}
+                >
+                  <ImageIcon className="w-6 h-6 mb-1" />
+                  <span className="text-[11px] font-bold">Image failed to load</span>
+                </div>
                 <button
                   type="button"
-                  onClick={() => setImageUrl('')}
-                  className="absolute top-2 right-2 bg-slate-900/80 text-white p-1 rounded-full text-xs"
+                  onClick={() => {
+                    setImageUrl('');
+                    setErrors((prev) => ({ ...prev, image: null }));
+                  }}
+                  className="absolute top-2 right-2 bg-slate-900/80 hover:bg-slate-900 text-white p-1.5 rounded-full text-xs transition-colors z-10"
+                  title="Remove image"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>

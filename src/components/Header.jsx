@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, Settings, Store, Calculator, CheckCircle2 } from 'lucide-react';
+import { ShoppingBag, Settings, Store, Calculator } from 'lucide-react';
 
 export default function Header({ 
   activeTab, 

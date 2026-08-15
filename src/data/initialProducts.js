@@ -35,7 +35,7 @@ export const INITIAL_PRODUCTS = [
     price: 32,
     unit: "Packet",
     category: "Curd",
-    image: "https://images.unsplash.com/photo-1571217865189-d99bc4d28341?w=400&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1570560258879-af7f8e1447ac?w=400&auto=format&fit=crop&q=80",
     badge: "500 g"
   },
   {
@@ -107,7 +107,7 @@ export const INITIAL_PRODUCTS = [
     price: 50,
     unit: "Piece",
     category: "Ice Cream",
-    image: "https://images.unsplash.com/photo-1560008515-d72b220c5717?w=400&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&auto=format&fit=crop&q=80",
     badge: "Premium Bar"
   }
 ];

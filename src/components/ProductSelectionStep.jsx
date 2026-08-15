@@ -12,7 +12,6 @@ import {
   ShoppingCart,
   Plus,
   Minus,
-  Check,
   Milk,
   Undo2
 } from 'lucide-react';
@@ -306,10 +305,24 @@ export default function ProductSelectionStep({
                           <div className="flex items-center space-x-2.5 min-w-0 flex-1">
                             <div className="w-9 h-9 rounded-xl bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center border border-slate-200 relative">
                               {product.image ? (
-                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-                              ) : (
+                                <img 
+                                  src={product.image} 
+                                  alt={product.name} 
+                                  className="w-full h-full object-cover" 
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    if (e.target.nextSibling) {
+                                      e.target.nextSibling.style.display = 'flex';
+                                    }
+                                  }}
+                                />
+                              ) : null}
+                              <div 
+                                className="w-full h-full flex items-center justify-center bg-blue-50/50"
+                                style={{ display: product.image ? 'none' : 'flex' }}
+                              >
                                 <Milk className="w-4 h-4 text-blue-500" />
-                              )}
+                              </div>
                             </div>
                             <div className="min-w-0">
                               <h4 className="font-bold text-slate-900 text-xs sm:text-sm truncate">
@@ -370,11 +383,24 @@ export default function ProductSelectionStep({
             <LayoutGrid className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-800">No matching products</h3>
+            <h3 className="text-sm font-bold text-slate-800">No matching products found</h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              No products found matching "{searchTerm}".
+              {selectedCategory !== 'All' 
+                ? `No products currently in category "${selectedCategory}".` 
+                : `No products matching "${searchTerm}".`}
             </p>
           </div>
+          {(searchTerm || selectedCategory !== 'All') && (
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedCategory('All');
+              }}
+              className="inline-flex items-center space-x-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-xl shadow-md transition-all active:scale-95 mt-1"
+            >
+              <span>Show All Products</span>
+            </button>
+          )}
         </div>
       )}
 

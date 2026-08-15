@@ -174,11 +174,20 @@ export default function CheckoutStep({
                           src={item.image}
                           alt={item.name}
                           className="w-full h-full object-cover"
-                          onError={(e) => { e.target.style.display = 'none'; }}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            if (e.target.nextSibling) {
+                              e.target.nextSibling.style.display = 'flex';
+                            }
+                          }}
                         />
-                      ) : (
+                      ) : null}
+                      <div
+                        className="w-full h-full flex items-center justify-center bg-blue-50/50"
+                        style={{ display: item.image ? 'none' : 'flex' }}
+                      >
                         <Milk className="w-4 h-4 text-slate-400" />
-                      )}
+                      </div>
                     </div>
                     <div className="min-w-0">
                       <h4 className="font-extrabold text-slate-900 text-xs sm:text-sm truncate">

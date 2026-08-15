@@ -8,7 +8,10 @@ export default function ProductCard({
   onDecrease
 }) {
   const [imageError, setImageError] = useState(false);
-  const isDecimalUnit = product.unit?.toLowerCase() === 'kg' || product.unit?.toLowerCase() === 'litre';
+
+  React.useEffect(() => {
+    setImageError(false);
+  }, [product.image]);
 
   const handleCardClick = (e) => {
     // If clicking on quantity buttons, don't trigger full card click

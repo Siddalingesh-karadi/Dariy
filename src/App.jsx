@@ -54,11 +54,6 @@ export default function App() {
     setIsProductModalOpen(true);
   };
 
-  const handleOpenEditModal = (product) => {
-    setEditingModalProduct(product);
-    setIsProductModalOpen(true);
-  };
-
   const handleSaveModalProduct = (productData) => {
     if (editingModalProduct) {
       handleUpdateProduct(productData);

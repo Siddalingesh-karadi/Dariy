@@ -1,5 +1,5 @@
 import React from 'react';
-import { RotateCcw, ArrowRight, Wallet, CheckCircle2, AlertCircle } from 'lucide-react';
+import { RotateCcw, Wallet, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function CashCalculator({
   grandTotal,

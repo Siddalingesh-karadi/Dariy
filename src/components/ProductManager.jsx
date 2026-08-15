@@ -158,17 +158,26 @@ export default function ProductManager({
                 filtered.map((product) => (
                   <tr key={product.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="p-3 flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0 relative">
                         {product.image ? (
                           <img
                             src={product.image}
                             alt={product.name}
                             className="w-full h-full object-cover"
-                            onError={(e) => { e.target.style.display = 'none'; }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              if (e.target.nextSibling) {
+                                e.target.nextSibling.style.display = 'flex';
+                              }
+                            }}
                           />
-                        ) : (
+                        ) : null}
+                        <div
+                          className="w-full h-full flex items-center justify-center bg-blue-50/50"
+                          style={{ display: product.image ? 'none' : 'flex' }}
+                        >
                           <Milk className="w-5 h-5 text-slate-400" />
-                        )}
+                        </div>
                       </div>
                       <div>
                         <div className="font-bold text-slate-900 text-sm">{product.name}</div>

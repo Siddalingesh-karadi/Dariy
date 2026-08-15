@@ -132,13 +132,20 @@ export default function Cart({
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           e.target.style.display = 'none';
+                          if (e.target.nextSibling) {
+                            e.target.nextSibling.style.display = 'flex';
+                          }
                         }}
                       />
-                    ) : (
+                    ) : null}
+                    <div
+                      className="w-full h-full flex items-center justify-center bg-blue-50/50"
+                      style={{ display: item.image ? 'none' : 'flex' }}
+                    >
                       <Milk className="w-5 h-5 text-slate-400" />
-                    )}
+                    </div>
                     {item.isCustom && (
-                      <span className="absolute bottom-0 right-0 bg-blue-600 text-[9px] text-white px-1 rounded-tl font-bold">
+                      <span className="absolute bottom-0 right-0 bg-blue-600 text-[9px] text-white px-1 rounded-tl font-bold z-10">
                         Custom
                       </span>
                     )}

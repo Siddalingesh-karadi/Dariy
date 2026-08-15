@@ -16,7 +16,14 @@ export const getStoredProducts = () => {
             const nameLower = (p.name || '').toLowerCase();
             cat = (nameLower.includes('curd') || nameLower.includes('dahi')) ? 'Curd' : 'Milk';
           }
-          return { ...p, category: cat || 'Milk' };
+          let img = p.image;
+          // Fix legacy broken Unsplash URLs
+          if (img && img.includes('photo-1571217865189-d99bc4d28341')) {
+            img = 'https://images.unsplash.com/photo-1570560258879-af7f8e1447ac?w=400&auto=format&fit=crop&q=80';
+          } else if (img && img.includes('photo-1560008515-d72b220c5717')) {
+            img = 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&auto=format&fit=crop&q=80';
+          }
+          return { ...p, category: cat || 'Milk', image: img };
         });
         return sanitized;
       }
